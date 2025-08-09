@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg1:#080408;
-  --bg2:#020205;
-  --neon:#ff006e;
-  --muted:#bdb6bf;
-  --panel:#0f0f14;
-  --radius:12px;
+  --bg1: #121212; /* Spotify dark background */
+  --bg2: #181818;
+  --primary-green: #1DB954; /* Spotify green */
+  --muted: #b3b3b3;
+  --panel: #282828;
+  --radius: 12px;
 }
 /* reset */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -23,7 +23,7 @@ body{
   position:relative;
   min-height:100%;
   margin:0;
-  background:transparent; /* removed original inline gradient; using ::before layer instead */
+  background:transparent; /* using ::before for bg */
   color:#eaeaea;
   -webkit-font-smoothing:antialiased;
   overflow-y:auto;
@@ -39,8 +39,8 @@ body::before{
   z-index:0; /* behind everything */
   pointer-events:none;
   background-image:
-    radial-gradient(900px 420px at 6% 8%, rgba(255,0,110,0.06), transparent 12%),
-    radial-gradient(800px 360px at 94% 88%, rgba(255,120,40,0.03), transparent 14%),
+    radial-gradient(900px 420px at 6% 8%, rgba(29,185,84,0.06), transparent 12%),
+    radial-gradient(800px 360px at 94% 88%, rgba(29,185,84,0.03), transparent 14%),
     linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
   background-repeat:no-repeat;
   background-attachment:fixed;
@@ -54,14 +54,14 @@ header, main, footer, .container, .section { position: relative; z-index: 1; }
 
 body{
   font-family:'Roboto',sans-serif;
-  color:#eaeaea;
+  color: var(--muted);
   -webkit-font-smoothing:antialiased;
 }
 
 /* header */
 header{padding:28px 16px;text-align:center}
 h1{font-family:'Poppins';font-size:26px;margin-bottom:6px;
-    background:linear-gradient(90deg,var(--neon),#ff7b00);
+    background:linear-gradient(90deg,var(--primary-green), #1ed760);
     -webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .lead{color:var(--muted)}
 .container{max-width:1100px;margin:0 auto;padding:28px}
@@ -85,24 +85,24 @@ h1{font-family:'Poppins';font-size:26px;margin-bottom:6px;
 .section img.single {
   width:46%;
   border-radius:12px;
-  border:1px solid rgba(255,255,255,0.04);
-  box-shadow:0 20px 60px rgba(255,0,110,0.06);
+  border:1px solid rgba(29,185,84,0.2);
+  box-shadow:0 20px 60px rgba(29,185,84,0.3);
   object-fit:cover;
-  cursor: pointer;                      /* make hover obvious */
+  cursor: pointer;
   transition: transform .18s ease, box-shadow .18s ease;
 }
 
-/* hover for single images (fix so all images respond) */
+/* hover for single images */
 .section img.single:hover {
   transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 36px 80px rgba(255,0,110,0.12);
+  box-shadow: 0 36px 80px rgba(29,185,84,0.5);
 }
 
-/* images stacked vertically (login above signup) */
+/* images stacked vertically */
 .images-group {
   width:46%;
   display:flex;
-  flex-direction:column; /* stack vertically so wide images display well */
+  flex-direction:column;
   gap:12px;
   align-items:center;
   justify-content:center;
@@ -110,16 +110,16 @@ h1{font-family:'Poppins';font-size:26px;margin-bottom:6px;
 .images-group img {
   width:100%;
   border-radius:10px;
-  border:1px solid rgba(255,255,255,0.04);
-  box-shadow:0 16px 40px rgba(255,0,110,0.05);
+  border:1px solid rgba(29,185,84,0.1);
+  box-shadow:0 16px 40px rgba(29,185,84,0.15);
   object-fit:cover;
   cursor:pointer;
   transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
 }
 .images-group img:hover{
   transform: translateY(-6px); 
-  box-shadow:0 28px 60px rgba(255,0,110,0.12);
-  filter: brightness(1.02);
+  box-shadow:0 28px 60px rgba(29,185,84,0.3);
+  filter: brightness(1.05);
 }
 
 /* text */
@@ -130,45 +130,42 @@ h1{font-family:'Poppins';font-size:26px;margin-bottom:6px;
 
 /* Playlists list style */
 .playlist-list{
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-  border: 1px solid rgba(255,255,255,0.03);
+  background: var(--panel);
+  border: none;
   padding:14px;
   border-radius:10px;
   color:var(--muted);
   max-width:560px;
 }
-.playlist-item{ padding:10px 12px; border-bottom:1px dashed rgba(255,255,255,0.03) }
+.playlist-item{ padding:10px 12px; border-bottom:1px solid #333 }
 .playlist-item:last-child{ border-bottom:none }
 .playlist-item .title{ color:#fff; font-weight:600; margin-bottom:6px }
 .playlist-meta{ font-size:13px; color:var(--muted) }
 
 /* modal / lightbox */
-/* overlay slightly lighter so content doesn't get crushed */
 #lightbox {
   position:fixed;
   inset:0;
   display:none;
   align-items:center;
   justify-content:center;
-  background:rgba(0,0,0,0.55); /* less dark so image isn't buried */
+  background:rgba(18,18,18,0.9);
   z-index:9999;
   padding:24px;
 }
 #lightbox.open{ display:flex }
 
-/* bright white glow + subtle black shadow behind the image,
-   and a brightness boost so details are clearer */
+/* bright green glow + subtle black shadow behind the image */
 #lightbox .lb-img{
   max-width:94%;
   max-height:90vh;
   border-radius:10px;
-  border:2px solid rgba(255,255,255,0.06);
+  border:2px solid rgba(29,185,84,0.3);
   transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
   filter: brightness(1.06);
-  /* white halo behind image for readability */
   box-shadow:
-    0 0 40px 18px rgba(255,255,255,0.12),  /* white halo */
-    0 30px 90px rgba(0,0,0,0.65);           /* deep drop shadow */
+    0 0 40px 18px rgba(29,185,84,0.3),
+    0 30px 90px rgba(0,0,0,0.8);
 }
 /* small caption */
 .lb-caption{
@@ -189,11 +186,20 @@ h1{font-family:'Poppins';font-size:26px;margin-bottom:6px;
   .section img.single{ width:92% }
 }
 .footer{ padding:36px;text-align:center;color:var(--muted) }
+
+/* header link color */
+header a {
+  color: var(--primary-green);
+  text-decoration:none;
+}
+header a:hover {
+  text-decoration: underline;
+}
 </style>
 </head>
 <body>
 <header>
-  <a href="index.html" style="color:var(--neon);text-decoration:none">← Back to portfolio</a>
+  <a href="index.html">← Back to portfolio</a>
   <h1>Music Player Management System</h1>
   <div class="lead">React.js frontend • JavaScript backend with JSON file storage • playlists, search, profiles</div>
 </header>
@@ -342,13 +348,10 @@ h1{font-family:'Poppins';font-size:26px;margin-bottom:6px;
     lightbox.classList.add('open');
     lightbox.setAttribute('aria-hidden','false');
     document.body.style.overflow = 'hidden';
-    // focus for accessibility
     lightbox.focus();
   }
 
   function closeLightbox(e){
-    // close when clicking outside the image (i.e., on overlay)
-    // if click target is the image itself, ignore
     if(e && e.target && (e.target.id === 'lbImg' || e.target.classList.contains('lb-img'))) return;
     lightbox.classList.remove('open');
     lightbox.setAttribute('aria-hidden','true');
@@ -357,14 +360,12 @@ h1{font-family:'Poppins';font-size:26px;margin-bottom:6px;
     document.body.style.overflow = '';
   }
 
-  // close on Esc
   document.addEventListener('keydown', (ev) => {
     if(ev.key === 'Escape' && lightbox.classList.contains('open')){
       closeLightbox({});
     }
   });
 
-  // prevent propagation when clicking image so clicking image doesn't close
   lbImg.addEventListener('click', (ev) => ev.stopPropagation());
 </script>
 </body>
