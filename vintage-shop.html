@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Title - Joe Mississian</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400&display=swap" rel="stylesheet">
+<style>
+/* === General Theme === */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    background: radial-gradient(circle at top left, #0f0f0f, #000000);
+    color: #eaeaea;
+    min-height: 100vh;
+    overflow-y: scroll;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+body::-webkit-scrollbar { display: none; } /* Chrome */
+
+/* === Header === */
+header {
+    text-align: center;
+    padding: 2rem 1rem 1rem;
+}
+header h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    margin: 0;
+    background: linear-gradient(90deg, #ff7b00, #ff006e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+header p {
+    color: #aaa;
+    margin: 0.3rem 0;
+}
+.back-link {
+    color: #ff7b00;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* === Sections === */
+.section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 10%;
+    gap: 2rem;
+}
+.section:nth-child(even) {
+    flex-direction: row-reverse;
+}
+.section img {
+    max-width: 45%;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 20px rgba(255, 0, 100, 0.4);
+}
+.section-text {
+    flex: 1;
+}
+.section-text h2 {
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+.section-text p {
+    color: #ccc;
+    line-height: 1.6;
+}
+
+/* === Footer === */
+footer {
+    padding: 2rem;
+    text-align: center;
+    color: #777;
+    font-size: 0.9rem;
+}
+@media (max-width: 768px) {
+    .section {
+        flex-direction: column !important;
+        text-align: center;
+    }
+    .section img {
+        max-width: 90%;
+    }
+}
+</style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="back-link">← Back to Portfolio</a>
+    <h1>AI Chat Website</h1>
+    <p>Full-stack C# chat with contextual memory and user recognition</p>
+</header>
+
+<!-- === Content Sections === -->
+<div class="section">
+    <img src="images/chat-1.jpg" alt="Screenshot 1">
+    <div class="section-text">
+        <h2>Project Overview</h2>
+        <p>This AI Chat Website allows real-time conversation with contextual awareness, powered by a C# backend and WebSocket communication. Users are recognized and greeted individually.</p>
+    </div>
+</div>
+
+<div class="section">
+    <img src="images/chat-2.jpg" alt="Screenshot 2">
+    <div class="section-text">
+        <h2>Key Features</h2>
+        <p>• Contextual memory per user<br>
+           • API integration for NLP<br>
+           • Secure user authentication<br>
+           • Responsive chat UI for desktop & mobile</p>
+    </div>
+</div>
+
+<div class="section">
+    <img src="images/chat-3.jpg" alt="Screenshot 3">
+    <div class="section-text">
+        <h2>Technology Stack</h2>
+        <p>• Backend: C#, ASP.NET Core<br>
+           • Frontend: HTML, CSS, JS<br>
+           • Database: SQL Server<br>
+           • Hosting: Azure</p>
+    </div>
+</div>
+
+<footer>© 2025 Joe Mississian</footer>
+</body>
+</html>

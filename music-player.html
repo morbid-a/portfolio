@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Music Player — Joe Mississian</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#080408;
+  --bg2:#020205;
+  --neon:#ff006e;
+  --muted:#bdb6bf;
+  --panel:#0f0f14;
+  --radius:12px;
+}
+/* reset */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+
+/* ---------- Single fixed background layer to avoid seams ---------- */
+body{
+  position:relative;
+  min-height:100%;
+  margin:0;
+  background:transparent; /* removed original inline gradient; using ::before layer instead */
+  color:#eaeaea;
+  -webkit-font-smoothing:antialiased;
+  overflow-y:auto;
+  scrollbar-width:none;
+}
+body::-webkit-scrollbar{display:none}
+
+/* fixed background painted in a single ::before layer so there are no visible cuts */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0; /* behind everything */
+  pointer-events:none;
+  background-image:
+    radial-gradient(900px 420px at 6% 8%, rgba(255,0,110,0.06), transparent 12%),
+    radial-gradient(800px 360px at 94% 88%, rgba(255,120,40,0.03), transparent 14%),
+    linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+  background-size:cover;
+  will-change:transform;
+  filter: saturate(1);
+}
+
+/* Ensure content paints above the background layer */
+header, main, footer, .container, .section { position: relative; z-index: 1; }
+
+body{
+  font-family:'Roboto',sans-serif;
+  color:#eaeaea;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* header */
+header{padding:28px 16px;text-align:center}
+h1{font-family:'Poppins';font-size:26px;margin-bottom:6px;
+    background:linear-gradient(90deg,var(--neon),#ff7b00);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lead{color:var(--muted)}
+.container{max-width:1100px;margin:0 auto;padding:28px}
+
+/* Section base */
+.section{
+  display:flex;
+  gap:36px;
+  align-items:center;
+  padding:56px 0;
+  opacity:0;
+  transform:translateY(18px);
+  transition:all .7s cubic-bezier(.2,.9,.2,1);
+}
+.section.visible{ opacity:1; transform:none }
+
+/* alternate sides */
+.section:nth-child(even){ flex-direction:row-reverse }
+
+/* increased single image size */
+.section img.single {
+  width:46%;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow:0 20px 60px rgba(255,0,110,0.06);
+  object-fit:cover;
+  cursor: pointer;                      /* make hover obvious */
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+/* hover for single images (fix so all images respond) */
+.section img.single:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 36px 80px rgba(255,0,110,0.12);
+}
+
+/* images stacked vertically (login above signup) */
+.images-group {
+  width:46%;
+  display:flex;
+  flex-direction:column; /* stack vertically so wide images display well */
+  gap:12px;
+  align-items:center;
+  justify-content:center;
+}
+.images-group img {
+  width:100%;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow:0 16px 40px rgba(255,0,110,0.05);
+  object-fit:cover;
+  cursor:pointer;
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.images-group img:hover{
+  transform: translateY(-6px); 
+  box-shadow:0 28px 60px rgba(255,0,110,0.12);
+  filter: brightness(1.02);
+}
+
+/* text */
+.section-text{ flex:1 }
+.section-text h2{ font-family:'Poppins'; color:#fff; margin-bottom:8px }
+.section-text p, .section-text ul { color:var(--muted); line-height:1.6 }
+.section-text ul{ margin-left:18px }
+
+/* Playlists list style */
+.playlist-list{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border: 1px solid rgba(255,255,255,0.03);
+  padding:14px;
+  border-radius:10px;
+  color:var(--muted);
+  max-width:560px;
+}
+.playlist-item{ padding:10px 12px; border-bottom:1px dashed rgba(255,255,255,0.03) }
+.playlist-item:last-child{ border-bottom:none }
+.playlist-item .title{ color:#fff; font-weight:600; margin-bottom:6px }
+.playlist-meta{ font-size:13px; color:var(--muted) }
+
+/* modal / lightbox */
+/* overlay slightly lighter so content doesn't get crushed */
+#lightbox {
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.55); /* less dark so image isn't buried */
+  z-index:9999;
+  padding:24px;
+}
+#lightbox.open{ display:flex }
+
+/* bright white glow + subtle black shadow behind the image,
+   and a brightness boost so details are clearer */
+#lightbox .lb-img{
+  max-width:94%;
+  max-height:90vh;
+  border-radius:10px;
+  border:2px solid rgba(255,255,255,0.06);
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  filter: brightness(1.06);
+  /* white halo behind image for readability */
+  box-shadow:
+    0 0 40px 18px rgba(255,255,255,0.12),  /* white halo */
+    0 30px 90px rgba(0,0,0,0.65);           /* deep drop shadow */
+}
+/* small caption */
+.lb-caption{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:14px;
+  text-align:center;
+}
+
+/* responsive */
+@media (max-width: 920px){
+  .section{ gap:22px; padding:36px 6% }
+  .images-group img, .section img.single{ width:100% }
+}
+@media (max-width: 820px){
+  .section{ flex-direction:column !important; text-align:center }
+  .images-group{ width:92% }
+  .section img.single{ width:92% }
+}
+.footer{ padding:36px;text-align:center;color:var(--muted) }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html" style="color:var(--neon);text-decoration:none">← Back to portfolio</a>
+  <h1>Music Player Management System</h1>
+  <div class="lead">React.js frontend • JavaScript backend with JSON file storage • playlists, search, profiles</div>
+</header>
+
+<main class="container">
+
+  <!-- Project Overview (text-first) -->
+  <section class="section">
+    <div class="section-text">
+      <h2>Project Overview</h2>
+      <p>
+        A full-featured music management app with a React.js frontend and a lightweight JavaScript backend that stores data in JSON files.
+        Supports creating & managing playlists, a powerful search bar, profile management, and quick-add controls. The UI is responsive and optimized for desktop and mobile.
+      </p>
+      <p style="margin-top:8px;color:var(--muted);font-size:13px">
+        <strong>Stack:</strong> React · JavaScript backend · JSON storage
+      </p>
+    </div>
+  </section>
+
+  <!-- Auth: stacked login above signup images -->
+  <section class="section">
+    <div class="images-group" aria-hidden="true">
+      <!-- login above signup (stacked) -->
+      <img src="images/m_log.png" alt="Login screenshot" data-caption="Login screen — enter username/email and password" onclick="openLightbox(this)">
+      <img src="images/m_reg.PNG" alt="Signup screenshot" data-caption="Signup screen — real-time validation and password rules" onclick="openLightbox(this)">
+    </div>
+
+    <div class="section-text">
+      <h2>Authentication — Signup & Login</h2>
+      <p>
+        The app provides a secure signup/login flow with real-time validation and clear error feedback:
+      </p>
+      <ul>
+        <li><strong>Signup:</strong> unique username & email checks (no duplicates). Passwords must meet the strong complexity rules (2 uppercase, 2 lowercase, 2 digits, 2 special characters).</li>
+        <li><strong>Login:</strong> users can sign in using either <em>username</em> or <em>email</em> plus password; invalid credentials are rejected immediately.</li>
+        <li><strong>Backend:</strong> authentication and validation implemented in JavaScript; user data and credential hashes stored in JSON files (structured, encrypted where needed).</li>
+        <li><strong>UX:</strong> real-time client-side hints (React) + server-side enforcement for security.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Search & Library -->
+  <section class="section">
+    <div class="section-text">
+      <h2>Search & Library</h2>
+      <p>
+        Smart search supports prefix, partial, and full-word matching. Results update as you type (debounced for performance) and include live filtering by metadata.
+      </p>
+      <ul>
+        <li><strong>Prefix & partial matching</strong> — type "lov" to find "Why Love Me Do" and "Lovely Day".</li>
+        <li><strong>Left sidebar</strong> contains playlists and actions so you can add/edit/delete any playlist from anywhere in the UI.</li>
+        <li><strong>Quick-add</strong> button in the nav allowing to create songs anywhere in the UI.</li>
+      </ul>
+    </div>
+    <img class="single" src="images/m_home.png" alt="Search and library screenshot" onclick="openLightbox(this)">
+  </section>
+
+  <!-- Playlists-only section -->
+  <section class="section">
+    <img class="single" src="images/m_play.png" alt="Playlists screenshot" onclick="openLightbox(this)">
+    <div class="section-text">
+      <h2>Playlists</h2>
+      <p>
+        Dedicated playlist section — lists all user-created playlists and the songs inside them. This section shows what you’ve added and allows quick management (rename, reorder, delete as previously mentioned).
+      </p>
+
+      <div class="playlist-list" aria-live="polite">
+        <!-- Example items — replace with actual items or dynamic rendering -->
+        <div class="playlist-item">
+          <div class="title">Rock</div>
+          <div class="playlist-meta">1 songs — last updated 2025-09-08</div>
+        </div>
+        <div class="playlist-item">
+          <div class="title">Pop</div>
+          <div class="playlist-meta">3 songs — last updated 2025-09-08</div>
+        </div>
+        <div class="playlist-item">
+          <div class="title">Favorites</div>
+          <div class="playlist-meta">1 songs — last updated 2025-09-08</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Profile & Account (no playlists here) -->
+  <section class="section">
+    <div class="section-text">
+      <h2>Profile & Account</h2>
+      <p>
+        Profile allows editing username (unique check), updating date-of-birth, changing password (requires current password confirmation), and account deletion (server-side removal of related JSON entries).
+      </p>
+      <ul>
+        <li>Edit username & DOB — unique username validation enforced.</li>
+        <li>Change password with current password confirmation.</li>
+        <li>Logout & delete account — deleting an account removes associated playlists and user data from the JSON store.</li>
+      </ul>
+    </div>
+    <img class="single" src="images/m_prof.PNG" alt="Profile screenshot" onclick="openLightbox(this)">
+  </section>
+
+  <!-- Technology Stack (JS + JSON) -->
+  <section class="section">
+    <div class="section-text">
+      <h2>Technology Stack</h2>
+      <p>
+        <strong>Frontend:</strong> React.js (functional components, hooks, client-side routing).<br>
+        <strong>Backend:</strong> JavaScript (Node.js or similar) serving REST endpoints; application logic written in JavaScript.<br>
+        <strong>Storage:</strong> Structured JSON files for persistence (users, songs metadata, playlists). Files are read/written carefully with concurrency in mind and optional lightweight encryption for credential fields.<br>
+        <strong>Dev Tools:</strong> Visual Studio / VS Code, Postman for API testing, Git for version control.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">© 2025 Joe Mississian</footer>
+
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1" onclick="closeLightbox(event)">
+  <div>
+    <img class="lb-img" id="lbImg" src="" alt="">
+    <div class="lb-caption" id="lbCaption"></div>
+  </div>
+</div>
+
+<script>
+  // reveal on scroll
+  const sections = document.querySelectorAll('.section');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') });
+  }, { threshold: 0.18 });
+  sections.forEach(s => io.observe(s));
+
+  // Lightbox functions
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbCaption = document.getElementById('lbCaption');
+
+  function openLightbox(imgEl){
+    const src = imgEl.getAttribute('src');
+    const caption = imgEl.getAttribute('data-caption') || imgEl.getAttribute('alt') || '';
+    lbImg.src = src;
+    lbImg.alt = imgEl.alt || '';
+    lbCaption.textContent = caption;
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+    // focus for accessibility
+    lightbox.focus();
+  }
+
+  function closeLightbox(e){
+    // close when clicking outside the image (i.e., on overlay)
+    // if click target is the image itself, ignore
+    if(e && e.target && (e.target.id === 'lbImg' || e.target.classList.contains('lb-img'))) return;
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden','true');
+    lbImg.src = '';
+    lbCaption.textContent = '';
+    document.body.style.overflow = '';
+  }
+
+  // close on Esc
+  document.addEventListener('keydown', (ev) => {
+    if(ev.key === 'Escape' && lightbox.classList.contains('open')){
+      closeLightbox({});
+    }
+  });
+
+  // prevent propagation when clicking image so clicking image doesn't close
+  lbImg.addEventListener('click', (ev) => ev.stopPropagation());
+</script>
+</body>
+</html>
